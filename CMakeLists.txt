@@ -74,6 +74,16 @@ project(SDKlib
     DESCRIPTION "MEGA SDK Library"
     )
 
+# 在project之后立即设置MSVC的UTF-8选项
+if(MSVC)
+    # 使用add_compile_options为所有目标添加编译选项
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+    # 同时，直接设置CMAKE_CXX_FLAGS和CMAKE_C_FLAGS以确保全局有效
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
+endif()
+
 # In-source build not allowed
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     message(FATAL_ERROR "In-source build is not allowed. Remove CMakeCache.txt and the CMakeFiles directory and set a new binary directory different than the source tree.")
@@ -174,6 +184,55 @@ endif()
 if(ENABLE_SDKLIB_TESTS)
     add_subdirectory(tests)
 endif()
+
+
+## Load FUSE support.
+# 添加 WinFSP 配置 - 解决 "Could NOT find WinFSP" 错误
+if(WIN32 AND WITH_FUSE)
+    message(STATUS "Configuring WinFSP for Windows FUSE support")
+    
+    # 方法1: 直接设置路径变量（最简单，替换为您的实际安装路径）
+    set(WinFSP_ROOT "C:/Program Files (x86)/WinFsp")
+    set(WinFSP_INCLUDE_DIR "${WinFSP_ROOT}/inc/fuse")
+    
+    # 根据架构设置库路径
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|AMD64)")
+        set(WinFSP_LIBRARY "${WinFSP_ROOT}/bin")
+    else()
+        set(WinFSP_LIBRARY "${WinFSP_ROOT}/bin")
+    endif()
+    
+    # 方法2: 使用 find_path 和 find_library（更灵活）
+    # find_path(WinFSP_INCLUDE_DIR
+    #     NAMES fuse.h
+    #     PATHS
+    #         "C:/Program Files (x86)/WinFSP/inc/fuse"
+    #         "C:/Program Files/WinFSP/inc/fuse"
+    #         "$ENV{ProgramFiles}/WinFSP/inc/fuse"
+    #     DOC "Path to WinFSP include directory"
+    # )
+    # 
+    # find_library(WinFSP_LIBRARY
+    #     NAMES fuse
+    #     PATHS
+    #         "C:/Program Files (x86)/WinFSP/lib/x64"
+    #         "C:/Program Files (x86)/WinFSP/lib"
+    #         "C:/Program Files/WinFSP/lib/x64"
+    #         "$ENV{ProgramFiles}/WinFSP/lib/x64"
+    #     DOC "Path to WinFSP library"
+    # )
+    
+    # 检查是否成功找到
+    if(EXISTS "${WinFSP_INCLUDE_DIR}" AND EXISTS "${WinFSP_LIBRARY}")
+        message(STATUS "Found WinFSP includes: ${WinFSP_INCLUDE_DIR}")
+        message(STATUS "Found WinFSP library: ${WinFSP_LIBRARY}")
+    else()
+        message(WARNING "WinFSP not found at specified path. Please check the installation.")
+        message(WARNING "Expected include path: ${WinFSP_INCLUDE_DIR}")
+        message(WARNING "Expected library path: ${WinFSP_LIBRARY}")
+    endif()
+endif()
+
 
 ## Load FUSE support.
 include(src/fuse/CMakeLists.txt)
