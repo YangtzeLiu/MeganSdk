@@ -1,4 +1,4 @@
-# CMakeLists.txt file to build the SDKlib library.
+Ôªø# CMakeLists.txt file to build the SDKlib library.
 #
 # It can be used to build a standalone library or to be included via add_subdirectory.
 #
@@ -74,12 +74,10 @@ project(SDKlib
     DESCRIPTION "MEGA SDK Library"
     )
 
-# ‘⁄project÷Æ∫Û¡¢º¥…Ë÷√MSVCµƒUTF-8—°œÓ
+#Set UTF-8 
 if(MSVC)
-    #  π”√add_compile_optionsŒ™À˘”–ƒø±ÍÃÌº”±‡“Î—°œÓ
     add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-    # Õ¨ ±£¨÷±Ω”…Ë÷√CMAKE_CXX_FLAGS∫ÕCMAKE_C_FLAGS“‘»∑±£»´æ÷”––ß
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
 endif()
@@ -187,22 +185,21 @@ endif()
 
 
 ## Load FUSE support.
-# ÃÌº” WinFSP ≈‰÷√ - Ω‚æˆ "Could NOT find WinFSP" ¥ÌŒÛ
+# WinFSP Solve issue "Could NOT find WinFSP" 
 if(WIN32 AND WITH_FUSE)
     message(STATUS "Configuring WinFSP for Windows FUSE support")
     
-    # ∑Ω∑®1: ÷±Ω”…Ë÷√¬∑æ∂±‰¡ø£®◊ÓºÚµ•£¨ÃÊªªŒ™ƒ˙µƒ µº ∞≤◊∞¬∑æ∂£©
     set(WinFSP_ROOT "C:/Program Files (x86)/WinFsp")
     set(WinFSP_INCLUDE_DIR "${WinFSP_ROOT}/inc/fuse")
     
-    # ∏˘æ›º‹ππ…Ë÷√ø‚¬∑æ∂
+
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|AMD64)")
-        set(WinFSP_LIBRARY "${WinFSP_ROOT}/bin")
+        set(WinFSP_LIBRARY "${WinFSP_ROOT}/bin/winfsp-x64.lib")
     else()
-        set(WinFSP_LIBRARY "${WinFSP_ROOT}/bin")
+        set(WinFSP_LIBRARY "${WinFSP_ROOT}/bin/winfsp-x64.lib")
     endif()
     
-    # ∑Ω∑®2:  π”√ find_path ∫Õ find_library£®∏¸¡ÈªÓ£©
+    
     # find_path(WinFSP_INCLUDE_DIR
     #     NAMES fuse.h
     #     PATHS
@@ -222,7 +219,7 @@ if(WIN32 AND WITH_FUSE)
     #     DOC "Path to WinFSP library"
     # )
     
-    # ºÏ≤È «∑Ò≥…π¶’“µΩ
+   
     if(EXISTS "${WinFSP_INCLUDE_DIR}" AND EXISTS "${WinFSP_LIBRARY}")
         message(STATUS "Found WinFSP includes: ${WinFSP_INCLUDE_DIR}")
         message(STATUS "Found WinFSP library: ${WinFSP_LIBRARY}")
